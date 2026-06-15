@@ -1,0 +1,30 @@
+{
+  "name": "ajo-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Decentralized Ajo/ROSCA savings group platform on Stellar/Soroban",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev:frontend": "pnpm --filter ajo-frontend dev",
+    "build:frontend": "pnpm --filter ajo-frontend build",
+    "lint:frontend": "pnpm --filter ajo-frontend lint",
+    "dev:backend": "cd backend && cargo watch -x run",
+    "build:backend": "cd backend && cargo build --release",
+    "test:backend": "cd backend && cargo test",
+    "build:contracts": "cd contracts/ajo && cargo build --target wasm32-unknown-unknown --release",
+    "test:contracts": "cd contracts/ajo && cargo test",
+    "deploy:testnet": "bash scripts/deploy_testnet.sh",
+    "seed:db": "bash scripts/seed_db.sh",
+    "generate:keypair": "bash scripts/generate_keypair.sh"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.4.0"
+}

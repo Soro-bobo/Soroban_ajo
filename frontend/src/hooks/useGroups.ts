@@ -140,3 +140,29 @@ export function usePayoutSchedule(groupId: string) {
     enabled: Boolean(groupId),
   });
 }
+
+export interface GroupStats {
+  group_id: string;
+  total_contributed: string;
+  contribution_count: number;
+  expected_total: string;
+  completion_rate: string;
+  current_round: number;
+  total_rounds: number;
+}
+
+export function useGroupStats(groupId: string) {
+  return useQuery({
+    queryKey: [...GROUP_KEYS.detail(groupId), "stats"] as const,
+    queryFn: async () => {
+      const { data } = await api.get<GroupStats>(`/groups/${groupId}/stats`);
+      return data;
+    },
+    enabled: Boolean(groupId),
+  });
+}
+
+export function useMyGroups() {
+  const { data: allGroups } = useGroups();
+  return allGroups?.pages.flatMap((p) => p.data) ?? [];
+}

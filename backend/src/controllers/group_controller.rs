@@ -110,3 +110,19 @@ pub async fn get_payout_schedule(
     let schedule = GroupService::get_payout_schedule(&state.db, id).await?;
     Ok(Json(schedule))
 }
+
+pub async fn advance_payout(
+    State(state): State<AppState>,
+    Extension(auth): Extension<AuthenticatedUser>,
+    Path(id): Path<Uuid>,
+) -> AppResult<impl IntoResponse> {
+    let group = GroupService::get_by_id(&state.db, id).await?;
+    if group.creator_id != auth.user_id {
+        return Err(crate::errors::AppError::Forbidden(
+            "Only the group creator can advance the payout".to_string(),
+        ));
+    }
+    GroupService::advance_payout(&state.db, id).await?;
+    let updated = GroupService::get_by_id(&state.db, id).await?;
+    Ok(Json(updated))
+}

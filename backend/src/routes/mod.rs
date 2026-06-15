@@ -48,6 +48,7 @@ pub fn build_router(state: AppState) -> Router {
         .route("/groups", axum::routing::post(groups::create_group_handler))
         .route("/groups/:id/join", axum::routing::post(groups::join_group_handler))
         .route("/groups/:id/activate", axum::routing::patch(groups::activate_group_handler))
+        .route("/groups/:id/advance-payout", axum::routing::post(groups::advance_payout_handler))
         .route("/contributions", axum::routing::post(contributions::record_contribution_handler))
         .route("/groups/:group_id/me", get(members::get_my_membership_handler))
         .route("/groups/:group_id/members/:member_id", axum::routing::delete(members::remove_member_handler))

@@ -42,6 +42,7 @@ pub fn build_router(state: AppState) -> Router {
         .route("/groups/:id", get(groups::get_group_handler))
         .route("/groups/:id/members", get(groups::list_group_members_handler))
         .route("/groups/:id/payout-schedule", get(groups::get_payout_schedule_handler))
+        .route("/groups/:id/stats", get(groups::get_group_stats_handler))
         .route("/groups/:group_id/contributions", get(contributions::list_contributions_handler));
 
     let protected = Router::new()

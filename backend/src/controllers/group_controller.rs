@@ -111,6 +111,46 @@ pub async fn get_payout_schedule(
     Ok(Json(schedule))
 }
 
+pub async fn get_group_stats(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> AppResult<impl IntoResponse> {
+    let group = GroupService::get_by_id(&state.db, id).await?;
+
+    let total_contributed = sqlx::query_scalar::<_, Option<rust_decimal::Decimal>>(
+        "SELECT SUM(amount) FROM contributions WHERE group_id = $1 AND status = 'confirmed'"
+    )
+    .bind(id)
+    .fetch_one(&state.db)
+    .await?
+    .unwrap_or(rust_decimal::Decimal::ZERO);
+
+    let contribution_count = sqlx::query_scalar::<_, i64>(
+        "SELECT COUNT(*) FROM contributions WHERE group_id = $1 AND status = 'confirmed'"
+    )
+    .bind(id)
+    .fetch_one(&state.db)
+    .await?;
+
+    let expected_total = group.contribution_amount
+        * rust_decimal::Decimal::from(group.current_members)
+        * rust_decimal::Decimal::from(group.current_payout_position.max(1));
+
+    Ok(Json(serde_json::json!({
+        "group_id": id,
+        "total_contributed": total_contributed,
+        "contribution_count": contribution_count,
+        "expected_total": expected_total,
+        "completion_rate": if expected_total > rust_decimal::Decimal::ZERO {
+            (total_contributed / expected_total * rust_decimal::Decimal::from(100)).round()
+        } else {
+            rust_decimal::Decimal::ZERO
+        },
+        "current_round": group.current_payout_position,
+        "total_rounds": group.current_members,
+    })))
+}
+
 pub async fn advance_payout(
     State(state): State<AppState>,
     Extension(auth): Extension<AuthenticatedUser>,

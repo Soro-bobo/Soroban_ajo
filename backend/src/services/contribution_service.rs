@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{Datelike, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -56,6 +56,18 @@ impl ContributionService {
             ));
         }
 
+        // period_date = start of current month in UTC
+        let period_date: chrono::DateTime<Utc> = {
+            let now = Utc::now();
+            chrono::DateTime::<Utc>::from_naive_utc_and_offset(
+                chrono::NaiveDate::from_ymd_opt(now.year(), now.month(), 1)
+                    .unwrap()
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap(),
+                chrono::Utc,
+            )
+        };
+
         let contribution = sqlx::query_as::<_, Contribution>(
             r#"
             INSERT INTO contributions (
@@ -70,7 +82,7 @@ impl ContributionService {
         .bind(member_id)
         .bind(input.amount)
         .bind(&input.tx_hash)
-        .bind(Utc::now())
+        .bind(period_date)
         .bind(Utc::now())
         .fetch_one(pool)
         .await?;

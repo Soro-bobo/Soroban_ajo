@@ -88,7 +88,7 @@ export default function NewGroupPage() {
           <textarea
             rows={3}
             placeholder="What is this group for?"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             {...register("description")}
           />
           {errors.description && (
@@ -123,7 +123,7 @@ export default function NewGroupPage() {
             Frequency <span className="text-red-500">*</span>
           </label>
           <select
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             {...register("frequency")}
           >
             <option value="weekly">Weekly</option>

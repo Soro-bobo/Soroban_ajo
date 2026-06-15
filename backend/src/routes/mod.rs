@@ -53,6 +53,7 @@ pub fn build_router(state: AppState) -> Router {
         .route("/groups/:group_id/me", get(members::get_my_membership_handler))
         .route("/groups/:group_id/members/:member_id", axum::routing::delete(members::remove_member_handler))
         .route("/auth/me", get(auth::me_handler))
+        .route("/auth/profile", axum::routing::patch(auth::update_profile_handler))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth_middleware));
 
     let api_v1 = Router::new().merge(public).merge(protected);

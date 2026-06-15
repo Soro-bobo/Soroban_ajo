@@ -9,7 +9,8 @@ pub mod types;
 
 use errors::ContractError;
 use storage::{
-    increment_group_counter, load_group, load_member, save_group, save_member, set_admin,
+    get_group_counter, increment_group_counter, load_group, load_member, save_group, save_member,
+    set_admin,
 };
 use types::{Frequency, Group, GroupStatus, Member};
 
@@ -229,5 +230,22 @@ impl AjoContract {
     ) -> Result<u32, ContractError> {
         let m = load_member(&env, group_id, &member).ok_or(ContractError::MemberNotFound)?;
         Ok(m.payout_position)
+    }
+
+    /// Read-only: returns total number of groups ever created.
+    pub fn get_group_count(env: Env) -> u64 {
+        storage::get_group_counter(&env)
+    }
+
+    /// Read-only: returns true if a member has already received their payout.
+    pub fn has_received_payout(env: Env, group_id: u64, member: Address) -> Result<bool, ContractError> {
+        let m = load_member(&env, group_id, &member).ok_or(ContractError::MemberNotFound)?;
+        Ok(m.has_received_payout)
+    }
+
+    /// Read-only: returns total amount a member has contributed to a group.
+    pub fn get_total_contributed(env: Env, group_id: u64, member: Address) -> Result<i128, ContractError> {
+        let m = load_member(&env, group_id, &member).ok_or(ContractError::MemberNotFound)?;
+        Ok(m.total_contributed)
     }
 }

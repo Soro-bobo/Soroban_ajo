@@ -37,69 +37,65 @@ export default function RegisterPage() {
   const { mutate: doRegister, isPending } = useRegister();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-brand-600 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">A</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-          <p className="mt-1 text-sm text-gray-500">Start saving with your community</p>
-        </div>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 text-center mb-1">Create your account</h1>
+      <p className="text-sm text-gray-500 text-center mb-6">Start saving with your community</p>
 
-        <form
-          onSubmit={handleSubmit((data) =>
-            doRegister({
-              ...data,
-              wallet_address: data.wallet_address || undefined,
-            })
-          )}
-          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
-        >
-          <Input
-            label="Display Name"
-            placeholder="Amara Okonkwo"
-            error={errors.display_name?.message}
-            {...register("display_name")}
-          />
+      <form
+        onSubmit={handleSubmit((data) =>
+          doRegister({
+            ...data,
+            wallet_address: data.wallet_address || undefined,
+          })
+        )}
+        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
+      >
+        <Input
+          label="Display Name"
+          placeholder="Amara Okonkwo"
+          autoComplete="name"
+          error={errors.display_name?.message}
+          {...register("display_name")}
+        />
 
-          <Input
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            error={errors.email?.message}
-            {...register("email")}
-          />
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
-          <Input
-            label="Password"
-            type="password"
-            placeholder="••••••••"
-            error={errors.password?.message}
-            hint="8+ chars, uppercase, lowercase, number"
-            {...register("password")}
-          />
+        <Input
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          error={errors.password?.message}
+          hint="8+ chars with uppercase, lowercase, and a number"
+          {...register("password")}
+        />
 
-          <Input
-            label="Stellar Wallet Address"
-            placeholder="G..."
-            error={errors.wallet_address?.message}
-            hint="Optional — you can connect Freighter later"
-            {...register("wallet_address")}
-          />
+        <Input
+          label="Stellar Wallet Address"
+          placeholder="G..."
+          error={errors.wallet_address?.message}
+          hint="Optional — connect Freighter later in the Wallet tab"
+          {...register("wallet_address")}
+        />
 
-          <Button type="submit" className="w-full" isLoading={isPending}>
-            Create Account
-          </Button>
-        </form>
+        <Button type="submit" className="w-full" isLoading={isPending}>
+          Create Account
+        </Button>
+      </form>
 
-        <p className="mt-5 text-center text-sm text-gray-500">
-          Already have an account?{" "}
-          <Link href={ROUTES.LOGIN} className="text-brand-600 hover:underline font-medium">
-            Sign in
-          </Link>
-        </p>
-      </div>
+      <p className="mt-5 text-center text-sm text-gray-500">
+        Already have an account?{" "}
+        <Link href={ROUTES.LOGIN} className="text-emerald-600 hover:underline font-medium">
+          Sign in
+        </Link>
+      </p>
     </div>
   );
 }

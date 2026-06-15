@@ -26,48 +26,43 @@ export default function LoginPage() {
   const { mutate: login, isPending } = useLogin();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-brand-600 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">A</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="mt-1 text-sm text-gray-500">Sign in to your Ajo account</p>
-        </div>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 text-center mb-1">Welcome back</h1>
+      <p className="text-sm text-gray-500 text-center mb-6">Sign in to your Ajo account</p>
 
-        <form
-          onSubmit={handleSubmit((data) => login(data))}
-          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
-        >
-          <Input
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            error={errors.email?.message}
-            {...register("email")}
-          />
+      <form
+        onSubmit={handleSubmit((data) => login(data))}
+        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
+      >
+        <Input
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
-          <Input
-            label="Password"
-            type="password"
-            placeholder="••••••••"
-            error={errors.password?.message}
-            {...register("password")}
-          />
+        <Input
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          error={errors.password?.message}
+          {...register("password")}
+        />
 
-          <Button type="submit" className="w-full" isLoading={isPending}>
-            Sign in
-          </Button>
-        </form>
+        <Button type="submit" className="w-full" isLoading={isPending}>
+          Sign in
+        </Button>
+      </form>
 
-        <p className="mt-5 text-center text-sm text-gray-500">
-          Don&apos;t have an account?{" "}
-          <Link href={ROUTES.REGISTER} className="text-brand-600 hover:underline font-medium">
-            Sign up
-          </Link>
-        </p>
-      </div>
+      <p className="mt-5 text-center text-sm text-gray-500">
+        Don&apos;t have an account?{" "}
+        <Link href={ROUTES.REGISTER} className="text-emerald-600 hover:underline font-medium">
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 }

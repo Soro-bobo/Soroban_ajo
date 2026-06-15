@@ -1,5 +1,6 @@
 use validator::ValidationError;
 
+#[allow(dead_code)]
 pub fn validate_stellar_address(address: &str) -> Result<(), ValidationError> {
     if address.len() != 56 {
         return Err(ValidationError::new("invalid_stellar_address_length"));

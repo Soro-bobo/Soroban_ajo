@@ -46,6 +46,7 @@ pub fn clamp_limit(requested: Option<i64>) -> i64 {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CursorParams {
     pub cursor: Option<Uuid>,
     pub limit: Option<i64>,

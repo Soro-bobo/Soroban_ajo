@@ -14,6 +14,7 @@ use crate::{errors::AppError, services::auth_service::AuthService, AppState};
 #[derive(Clone, Debug)]
 pub struct AuthenticatedUser {
     pub user_id: Uuid,
+    #[allow(dead_code)]
     pub email: String,
 }
 

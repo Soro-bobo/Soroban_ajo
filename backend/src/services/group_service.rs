@@ -248,6 +248,7 @@ impl GroupService {
         Ok(rows)
     }
 
+    #[allow(dead_code)]
     #[tracing::instrument(skip(pool), fields(group_id = %group_id))]
     pub async fn advance_payout(pool: &PgPool, group_id: Uuid) -> AppResult<()> {
         let group = Self::get_by_id(pool, group_id).await?;

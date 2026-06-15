@@ -4,9 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     errors::{AppError, AppResult},
-    models::contribution::{
-        Contribution, ContributionStatus, CreateContributionInput, ListContributionsQuery,
-    },
+    models::contribution::{Contribution, CreateContributionInput, ListContributionsQuery},
     services::stellar_service::StellarService,
     utils::pagination::{clamp_limit, PaginatedResponse},
 };

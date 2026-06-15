@@ -29,4 +29,5 @@ pub async fn request_id_middleware(mut req: Request, next: Next) -> Response {
 }
 
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub struct RequestId(pub String);

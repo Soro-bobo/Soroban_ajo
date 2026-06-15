@@ -2,14 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  Wallet,
-  PlusCircle,
-} from "lucide-react";
+import { LayoutDashboard, Users, Wallet, PlusCircle, LogOut } from "lucide-react";
 import { clsx } from "clsx";
 import { ROUTES } from "@/lib/constants";
+import { useAuthStore } from "@/store/authStore";
+import { useLogout } from "@/hooks/useAuth";
 
 const navItems = [
   { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
@@ -20,18 +17,22 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuthStore();
+  const logout = useLogout();
 
   return (
     <aside className="flex flex-col w-64 min-h-screen border-r border-gray-200 bg-white">
+      {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-gray-200">
         <Link href={ROUTES.DASHBOARD} className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-brand-600 flex items-center justify-center">
+          <div className="h-8 w-8 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-sm">A</span>
           </div>
           <span className="font-semibold text-gray-900">Ajo Platform</span>
         </Link>
       </div>
 
+      {/* Nav links */}
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map(({ href, label, icon: Icon }) => {
           const isActive =
@@ -46,14 +47,14 @@ export function Sidebar() {
               className={clsx(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-brand-50 text-brand-700"
+                  ? "bg-emerald-50 text-emerald-700"
                   : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
               <Icon
                 className={clsx(
                   "h-5 w-5 shrink-0",
-                  isActive ? "text-brand-600" : "text-gray-400"
+                  isActive ? "text-emerald-600" : "text-gray-400"
                 )}
               />
               {label}
@@ -61,6 +62,30 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* User footer */}
+      {user && (
+        <div className="border-t border-gray-200 p-3">
+          <div className="flex items-center gap-3 rounded-lg px-3 py-2.5">
+            <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+              <span className="text-emerald-700 font-semibold text-sm">
+                {user.display_name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">{user.display_name}</p>
+              <p className="text-xs text-gray-400 truncate">{user.email}</p>
+            </div>
+            <button
+              onClick={logout}
+              title="Sign out"
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

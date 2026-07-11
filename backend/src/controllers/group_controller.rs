@@ -12,7 +12,7 @@ use crate::{
     errors::{AppError, AppResult},
     middleware::auth::AuthenticatedUser,
     models::group::{CreateGroupInput, ListGroupsQuery},
-    services::group_service::GroupService,
+    services::{auth_service::AuthService, group_service::GroupService},
     AppState,
 };
 
@@ -43,6 +43,8 @@ pub async fn create_group(
             "contribution_amount must be greater than 0".to_string(),
         ));
     }
+
+    AuthService::require_verified(&state.db, auth.user_id).await?;
 
     let group = GroupService::create(
         &state.db,
@@ -82,6 +84,8 @@ pub async fn join_group(
     Extension(auth): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
 ) -> AppResult<impl IntoResponse> {
+    AuthService::require_verified(&state.db, auth.user_id).await?;
+
     let member = GroupService::join(&state.db, id, auth.user_id).await?;
     Ok((StatusCode::CREATED, Json(member)))
 }

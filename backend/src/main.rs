@@ -4,30 +4,14 @@ use dotenvy::dotenv;
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-mod config;
-mod controllers;
-mod db;
-mod errors;
-mod middleware;
-mod models;
-mod routes;
-mod services;
-mod utils;
-
-use config::Config;
-use middleware::rate_limit::{cleanup_old_buckets, RateLimitState};
-use routes::build_router;
-use routes::health::init_start_time;
-use services::stellar_service::StellarService;
-
-#[derive(Clone, Debug)]
-pub struct AppState {
-    pub db: sqlx::PgPool,
-    pub config: Arc<Config>,
-    pub stellar: Arc<StellarService>,
-    pub rate_limiter: Arc<RateLimitState>,
-}
-
+use ajo_backend::{
+    config::Config,
+    db,
+    middleware::rate_limit::{cleanup_old_buckets, cleanup_sliding_window, RateLimitState, SlidingWindowLimiter},
+    routes::{build_router, health::init_start_time},
+    services::stellar_service::StellarService,
+    AppState,
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -60,6 +44,9 @@ async fn main() -> anyhow::Result<()> {
     let rate_limiter = Arc::new(RateLimitState::new(100.0));
     cleanup_old_buckets(rate_limiter.clone(), Duration::from_secs(600));
 
+    let auth_rate_limiter = Arc::new(SlidingWindowLimiter::new());
+    cleanup_sliding_window(auth_rate_limiter.clone(), Duration::from_secs(900));
+
     init_start_time();
 
     let state = AppState {
@@ -67,6 +54,7 @@ async fn main() -> anyhow::Result<()> {
         config: config.clone(),
         stellar,
         rate_limiter,
+        auth_rate_limiter,
     };
 
     // Missed-contribution detection — runs every hour
@@ -76,7 +64,7 @@ async fn main() -> anyhow::Result<()> {
             let mut interval = tokio::time::interval(Duration::from_secs(3600));
             loop {
                 interval.tick().await;
-                match services::contribution_service::ContributionService::detect_missed(&pool).await {
+                match ajo_backend::services::contribution_service::ContributionService::detect_missed(&pool).await {
                     Ok(n) if n > 0 => tracing::info!(count = n, "Missed contributions detected"),
                     Err(e) => tracing::error!(error = %e, "Missed contribution scan failed"),
                     _ => {}

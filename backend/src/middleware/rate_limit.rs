@@ -102,3 +102,56 @@ pub fn cleanup_old_buckets(rate_limiter: Arc<RateLimitState>, max_idle: Duration
         }
     });
 }
+
+/// Sliding-window limiter keyed by an arbitrary string (e.g. "login:ip:1.2.3.4" or
+/// "login:email:foo@bar.com"), used for auth-endpoint-specific limits that need
+/// dynamic identifiers pulled from the request body rather than just the connection.
+#[derive(Clone, Debug, Default)]
+pub struct SlidingWindowLimiter {
+    hits: Arc<Mutex<HashMap<String, Vec<Instant>>>>,
+}
+
+impl SlidingWindowLimiter {
+    pub fn new() -> Self {
+        Self {
+            hits: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    /// Records an attempt for `key` and returns true if it's within `max_attempts`
+    /// over the trailing `window`, false if the caller should be rejected.
+    pub fn check(&self, key: &str, max_attempts: usize, window: Duration) -> bool {
+        let now = Instant::now();
+        let mut hits = self.hits.lock().expect("mutex not poisoned");
+        let entry = hits.entry(key.to_string()).or_default();
+        entry.retain(|t| now.duration_since(*t) < window);
+
+        if entry.len() >= max_attempts {
+            return false;
+        }
+
+        entry.push(now);
+        true
+    }
+
+    pub fn cleanup(&self, max_idle: Duration) {
+        let now = Instant::now();
+        let mut hits = self.hits.lock().expect("mutex not poisoned");
+        hits.retain(|_, attempts| {
+            attempts
+                .last()
+                .map(|t| now.duration_since(*t) < max_idle)
+                .unwrap_or(false)
+        });
+    }
+}
+
+pub fn cleanup_sliding_window(limiter: Arc<SlidingWindowLimiter>, max_idle: Duration) {
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_secs(300));
+        loop {
+            interval.tick().await;
+            limiter.cleanup(max_idle);
+        }
+    });
+}

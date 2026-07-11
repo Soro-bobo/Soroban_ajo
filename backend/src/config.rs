@@ -13,6 +13,10 @@ pub struct Config {
     pub soroban_rpc_url: String,
     pub contract_id: String,
     pub app_version: String,
+    pub resend_api_key: String,
+    pub resend_from_email: String,
+    pub email_verification_token_expiry_hours: i64,
+    pub password_reset_token_expiry_minutes: i64,
 }
 
 impl Config {
@@ -32,6 +36,17 @@ impl Config {
                 .unwrap_or_else(|_| "https://soroban-testnet.stellar.org".to_string()),
             contract_id: required_env("CONTRACT_ID")?,
             app_version: std::env::var("APP_VERSION").unwrap_or_else(|_| "0.1.0".to_string()),
+            resend_api_key: required_env("RESEND_API_KEY")?,
+            resend_from_email: std::env::var("RESEND_FROM_EMAIL")
+                .unwrap_or_else(|_| "Ajo Platform <onboarding@ajo-platform.com>".to_string()),
+            email_verification_token_expiry_hours: optional_env_parse(
+                "EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS",
+                24,
+            )?,
+            password_reset_token_expiry_minutes: optional_env_parse(
+                "PASSWORD_RESET_TOKEN_EXPIRY_MINUTES",
+                30,
+            )?,
         })
     }
 

@@ -6,6 +6,7 @@ export interface User {
   display_name: string;
   wallet_address: string | null;
   is_active: boolean;
+  email_verified: boolean;
   created_at: string;
 }
 
@@ -25,6 +26,23 @@ export interface RegisterPayload {
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface VerifyEmailPayload {
+  token: string;
+}
+
+export interface ResendVerificationPayload {
+  email: string;
+}
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  new_password: string;
 }
 
 // ─── Groups ──────────────────────────────────────────────────────────────────

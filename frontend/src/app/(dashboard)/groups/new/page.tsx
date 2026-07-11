@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useCreateGroup } from "@/hooks/useGroups";
+import { useAuthStore } from "@/store/authStore";
 import { ROUTES } from "@/lib/constants";
 import type { ContributionFrequency } from "@/types";
 
@@ -42,6 +43,7 @@ export default function NewGroupPage() {
   });
 
   const { mutate: createGroup, isPending } = useCreateGroup();
+  const emailVerified = useAuthStore((state) => state.user?.email_verified ?? true);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -59,6 +61,16 @@ export default function NewGroupPage() {
         title="Create Savings Group"
         description="Set up your Ajo circle. You'll be the first member."
       />
+
+      {!emailVerified && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Verify your email before creating a group. Check your inbox for the verification link, or{" "}
+          <Link href={`${ROUTES.CHECK_EMAIL}?email=`} className="font-medium underline">
+            resend it
+          </Link>
+          .
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit((data) =>

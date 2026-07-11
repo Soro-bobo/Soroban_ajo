@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { PasswordStrengthChecklist } from "@/components/ui/PasswordStrengthChecklist";
 import { useRegister } from "@/hooks/useAuth";
 import { ROUTES } from "@/lib/constants";
 
@@ -31,10 +32,12 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+    watch,
+    formState: { errors, isValid },
+  } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
   const { mutate: doRegister, isPending } = useRegister();
+  const password = watch("password") ?? "";
 
   return (
     <div>
@@ -67,15 +70,17 @@ export default function RegisterPage() {
           {...register("email")}
         />
 
-        <Input
-          label="Password"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          error={errors.password?.message}
-          hint="8+ chars with uppercase, lowercase, and a number"
-          {...register("password")}
-        />
+        <div className="space-y-2">
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            autoComplete="new-password"
+            error={errors.password?.message}
+            {...register("password")}
+          />
+          <PasswordStrengthChecklist password={password} />
+        </div>
 
         <Input
           label="Stellar Wallet Address"
@@ -85,7 +90,7 @@ export default function RegisterPage() {
           {...register("wallet_address")}
         />
 
-        <Button type="submit" className="w-full" isLoading={isPending}>
+        <Button type="submit" className="w-full" isLoading={isPending} disabled={!isValid}>
           Create Account
         </Button>
       </form>

@@ -37,3 +37,6 @@ contracts/ajo/test_snapshots/
 
 # pnpm
 .pnpm-store/
+
+# TypeScript incremental build cache
+*.tsbuildinfo

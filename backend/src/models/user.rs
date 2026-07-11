@@ -11,6 +11,7 @@ pub struct User {
     pub display_name: String,
     pub wallet_address: Option<String>,
     pub is_active: bool,
+    pub email_verified: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -22,6 +23,7 @@ pub struct UserPublic {
     pub display_name: String,
     pub wallet_address: Option<String>,
     pub is_active: bool,
+    pub email_verified: bool,
     pub created_at: DateTime<Utc>,
 }
 
@@ -33,6 +35,7 @@ impl From<User> for UserPublic {
             display_name: u.display_name,
             wallet_address: u.wallet_address,
             is_active: u.is_active,
+            email_verified: u.email_verified,
             created_at: u.created_at,
         }
     }

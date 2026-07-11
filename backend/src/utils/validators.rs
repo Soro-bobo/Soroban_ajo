@@ -1,20 +1,27 @@
+use std::borrow::Cow;
 use validator::ValidationError;
 
-#[allow(dead_code)]
+use crate::utils::password_blocklist::is_common_password;
+
+/// Validates a Stellar public key (G...) including its checksum, via `stellar-strkey`
+/// rather than a length/regex check, since a regex can't catch a corrupted checksum.
 pub fn validate_stellar_address(address: &str) -> Result<(), ValidationError> {
-    if address.len() != 56 {
-        return Err(ValidationError::new("invalid_stellar_address_length"));
-    }
-    if !address.starts_with('G') {
-        return Err(ValidationError::new("invalid_stellar_address_prefix"));
-    }
-    let valid_chars = address.chars().all(|c| {
-        matches!(c, 'A'..='Z' | '2'..='7')
-    });
-    if !valid_chars {
-        return Err(ValidationError::new("invalid_stellar_address_chars"));
-    }
+    stellar_strkey::ed25519::PublicKey::from_string(address).map_err(|_| {
+        let mut err = ValidationError::new("invalid_stellar_address");
+        err.message = Some(Cow::from("Invalid Stellar wallet address"));
+        err
+    })?;
     Ok(())
+}
+
+/// Only validates when a wallet address is actually provided — the field is optional
+/// at registration and users can connect via Freighter later. `validator`'s derive
+/// macro already skips `None`, so this only ever runs against `Some(value)`.
+pub fn validate_optional_stellar_address(address: &str) -> Result<(), ValidationError> {
+    if address.is_empty() {
+        return Ok(());
+    }
+    validate_stellar_address(address)
 }
 
 pub fn validate_tx_hash(hash: &str) -> Result<(), ValidationError> {
@@ -29,14 +36,35 @@ pub fn validate_tx_hash(hash: &str) -> Result<(), ValidationError> {
 }
 
 pub fn validate_password_strength(password: &str) -> Result<(), ValidationError> {
-    if password.len() < 8 {
-        return Err(ValidationError::new("password_too_short"));
-    }
     let has_upper = password.chars().any(|c| c.is_uppercase());
     let has_lower = password.chars().any(|c| c.is_lowercase());
     let has_digit = password.chars().any(|c| c.is_ascii_digit());
-    if !has_upper || !has_lower || !has_digit {
-        return Err(ValidationError::new("password_too_weak"));
+
+    if !has_upper {
+        let mut err = ValidationError::new("password_missing_uppercase");
+        err.message = Some(Cow::from("Password must include at least one uppercase letter"));
+        return Err(err);
+    }
+    if !has_lower {
+        let mut err = ValidationError::new("password_missing_lowercase");
+        err.message = Some(Cow::from("Password must include at least one lowercase letter"));
+        return Err(err);
+    }
+    if !has_digit {
+        let mut err = ValidationError::new("password_missing_digit");
+        err.message = Some(Cow::from("Password must include at least one number"));
+        return Err(err);
+    }
+    Ok(())
+}
+
+pub fn validate_password_not_common(password: &str) -> Result<(), ValidationError> {
+    if is_common_password(password) {
+        let mut err = ValidationError::new("password_too_common");
+        err.message = Some(Cow::from(
+            "This password is too common and appears in known data breaches — choose another",
+        ));
+        return Err(err);
     }
     Ok(())
 }

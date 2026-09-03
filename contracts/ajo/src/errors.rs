@@ -18,4 +18,5 @@ pub enum ContractError {
     PayoutNotDue = 13,
     AlreadyInitialized = 14,
     RoundNotComplete = 15,
+    Unauthorized = 16,
 }

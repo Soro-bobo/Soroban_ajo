@@ -64,7 +64,7 @@ fn test_create_group() {
 
     let member = client.get_member(&group_id, &creator);
     assert_eq!(member.payout_position, 1);
-    assert_eq!(member.has_received_payout, false);
+    assert!(!member.has_received_payout);
 }
 
 #[test]
@@ -214,6 +214,94 @@ fn test_activate_and_distribute_payout() {
 
     let recipient = client.distribute_payout(&group_id, &creator);
     assert_eq!(recipient, creator);
+
+    let creator_member = client.get_member(&group_id, &creator);
+    assert!(creator_member.has_received_payout);
+}
+
+#[test]
+fn test_distribute_payout_pays_correct_member() {
+    let (env, client) = setup_env();
+    let admin = alice(&env);
+    client.initialize(&admin);
+
+    let creator = alice(&env);
+    let group_id = client.create_group(
+        &creator,
+        &group_name(&env),
+        &100_0000000_i128,
+        &ajo_contract::types::Frequency::Monthly,
+        &3_u32,
+        &100_u32,
+    );
+
+    let m2 = alice(&env);
+    client.join_group(&group_id, &m2);
+    let m3 = alice(&env);
+    client.join_group(&group_id, &m3);
+
+    client.activate_group(&group_id, &creator);
+
+    // Round 1 pays the creator (position 1)
+    let r1 = client.distribute_payout(&group_id, &creator);
+    assert_eq!(r1, creator);
+
+    // Round 2 must pay member 2, not the caller
+    let r2 = client.distribute_payout(&group_id, &creator);
+    assert_eq!(r2, m2);
+    assert!(client.get_member(&group_id, &m2).has_received_payout);
+    assert!(!client.get_member(&group_id, &m3).has_received_payout);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #5)")]
+fn test_distribute_payout_after_round_complete_panics() {
+    let (env, client) = setup_env();
+    let admin = alice(&env);
+    client.initialize(&admin);
+
+    let creator = alice(&env);
+    let group_id = client.create_group(
+        &creator,
+        &group_name(&env),
+        &100_0000000_i128,
+        &ajo_contract::types::Frequency::Monthly,
+        &2_u32,
+        &100_u32,
+    );
+
+    let m2 = alice(&env);
+    client.join_group(&group_id, &m2);
+    client.activate_group(&group_id, &creator);
+
+    client.distribute_payout(&group_id, &creator); // pays creator (position 1)
+    client.distribute_payout(&group_id, &creator); // pays m2 (position 2), group completes
+    client.distribute_payout(&group_id, &creator); // no rounds left
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #16)")]
+fn test_distribute_payout_unauthorized_caller_panics() {
+    let (env, client) = setup_env();
+    let admin = alice(&env);
+    client.initialize(&admin);
+
+    let creator = alice(&env);
+    let group_id = client.create_group(
+        &creator,
+        &group_name(&env),
+        &100_0000000_i128,
+        &ajo_contract::types::Frequency::Monthly,
+        &2_u32,
+        &100_u32,
+    );
+
+    let m2 = alice(&env);
+    client.join_group(&group_id, &m2);
+    client.activate_group(&group_id, &creator);
+
+    // m2 is a member but neither the creator nor the admin
+    client.distribute_payout(&group_id, &m2);
 }
 
 #[test]
@@ -256,5 +344,8 @@ fn test_events_emitted_on_create() {
     );
 
     let events = env.events().all();
-    assert!(events.len() >= 2, "Expected at least GroupCreated and MemberJoined events");
+    assert!(
+        events.len() >= 2,
+        "Expected at least GroupCreated and MemberJoined events"
+    );
 }

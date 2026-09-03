@@ -15,6 +15,7 @@ pub enum DataKey {
     Group(u64),
     Member(u64, Address),
     GroupMemberCount(u64),
+    PositionIndex(u64, u32),
 }
 
 const INSTANCE_BUMP_AMOUNT: u32 = 100;
@@ -39,18 +40,18 @@ pub fn save_group(env: &Env, group: &Group) {
     env.storage()
         .persistent()
         .set(&DataKey::Group(group.id), group);
-    env.storage()
-        .persistent()
-        .extend_ttl(&DataKey::Group(group.id), PERSISTENT_BUMP_AMOUNT, PERSISTENT_BUMP_AMOUNT);
+    env.storage().persistent().extend_ttl(
+        &DataKey::Group(group.id),
+        PERSISTENT_BUMP_AMOUNT,
+        PERSISTENT_BUMP_AMOUNT,
+    );
     env.storage()
         .instance()
         .extend_ttl(INSTANCE_BUMP_AMOUNT, INSTANCE_BUMP_AMOUNT);
 }
 
 pub fn load_group(env: &Env, group_id: u64) -> Option<Group> {
-    env.storage()
-        .persistent()
-        .get(&DataKey::Group(group_id))
+    env.storage().persistent().get(&DataKey::Group(group_id))
 }
 
 pub fn save_member(env: &Env, member: &Member) {
@@ -65,6 +66,20 @@ pub fn load_member(env: &Env, group_id: u64, address: &Address) -> Option<Member
     env.storage()
         .persistent()
         .get(&DataKey::Member(group_id, address.clone()))
+}
+
+pub fn save_position_index(env: &Env, group_id: u64, position: u32, address: &Address) {
+    let key = DataKey::PositionIndex(group_id, position);
+    env.storage().persistent().set(&key, address);
+    env.storage()
+        .persistent()
+        .extend_ttl(&key, PERSISTENT_BUMP_AMOUNT, PERSISTENT_BUMP_AMOUNT);
+}
+
+pub fn load_position_index(env: &Env, group_id: u64, position: u32) -> Option<Address> {
+    env.storage()
+        .persistent()
+        .get(&DataKey::PositionIndex(group_id, position))
 }
 
 pub fn get_admin(env: &Env) -> Option<Address> {

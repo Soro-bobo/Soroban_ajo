@@ -9,8 +9,8 @@ pub mod types;
 
 use errors::ContractError;
 use storage::{
-    get_group_counter, increment_group_counter, load_group, load_member, save_group, save_member,
-    set_admin,
+    increment_group_counter, load_group, load_member, load_position_index, save_group, save_member,
+    save_position_index, set_admin,
 };
 use types::{Frequency, Group, GroupStatus, Member};
 
@@ -44,7 +44,7 @@ impl AjoContract {
         if contribution_amount <= 0 {
             return Err(ContractError::InvalidAmount);
         }
-        if max_members < 2 || max_members > 50 {
+        if !(2..=50).contains(&max_members) {
             return Err(ContractError::InvalidMaxMembers);
         }
 
@@ -75,6 +75,7 @@ impl AjoContract {
             joined_ledger: env.ledger().sequence(),
         };
         save_member(&env, &creator_member);
+        save_position_index(&env, group_id, 1, &creator);
 
         events::group_created(&env, group_id, &creator, contribution_amount);
         events::member_joined(&env, group_id, &creator, 1);
@@ -113,6 +114,7 @@ impl AjoContract {
             joined_ledger: env.ledger().sequence(),
         };
         save_member(&env, &new_member);
+        save_position_index(&env, group_id, position, &member);
 
         events::member_joined(&env, group_id, &member, position);
 
@@ -152,6 +154,7 @@ impl AjoContract {
 
     /// Distribute the payout to the current round's recipient.
     /// The actual token transfer must be done by the backend/caller.
+    /// Only the group creator or contract admin may trigger a distribution.
     pub fn distribute_payout(
         env: Env,
         group_id: u64,
@@ -160,6 +163,10 @@ impl AjoContract {
         caller.require_auth();
 
         let mut group = load_group(&env, group_id).ok_or(ContractError::GroupNotFound)?;
+
+        if caller != group.creator && storage::get_admin(&env) != Some(caller.clone()) {
+            return Err(ContractError::Unauthorized);
+        }
 
         if group.status != GroupStatus::Active {
             return Err(ContractError::GroupNotActive);
@@ -171,10 +178,18 @@ impl AjoContract {
 
         let next_position = group.current_payout_position + 1;
 
-        // Find the member at this payout position
-        // In a real implementation we'd maintain an ordered list; here we rely on
-        // the backend to supply the recipient address after querying off-chain.
-        // This function advances the pointer and emits the event.
+        let recipient_address = load_position_index(&env, group_id, next_position)
+            .ok_or(ContractError::MemberNotFound)?;
+        let mut recipient =
+            load_member(&env, group_id, &recipient_address).ok_or(ContractError::MemberNotFound)?;
+
+        if recipient.has_received_payout {
+            return Err(ContractError::PayoutAlreadyReceived);
+        }
+
+        recipient.has_received_payout = true;
+        save_member(&env, &recipient);
+
         group.current_payout_position = next_position;
 
         if group.current_payout_position >= group.member_count {
@@ -184,11 +199,16 @@ impl AjoContract {
 
         save_group(&env, &group);
 
-        // Return the caller address as the payout recipient acknowledgment
         let payout_amount = group.contribution_amount * group.member_count as i128;
-        events::payout_distributed(&env, group_id, &caller, payout_amount, next_position);
+        events::payout_distributed(
+            &env,
+            group_id,
+            &recipient_address,
+            payout_amount,
+            next_position,
+        );
 
-        Ok(caller)
+        Ok(recipient_address)
     }
 
     /// Activate a pending group (called by creator once group is full or ready).
@@ -238,14 +258,31 @@ impl AjoContract {
     }
 
     /// Read-only: returns true if a member has already received their payout.
-    pub fn has_received_payout(env: Env, group_id: u64, member: Address) -> Result<bool, ContractError> {
+    pub fn has_received_payout(
+        env: Env,
+        group_id: u64,
+        member: Address,
+    ) -> Result<bool, ContractError> {
         let m = load_member(&env, group_id, &member).ok_or(ContractError::MemberNotFound)?;
         Ok(m.has_received_payout)
     }
 
     /// Read-only: returns total amount a member has contributed to a group.
-    pub fn get_total_contributed(env: Env, group_id: u64, member: Address) -> Result<i128, ContractError> {
+    pub fn get_total_contributed(
+        env: Env,
+        group_id: u64,
+        member: Address,
+    ) -> Result<i128, ContractError> {
         let m = load_member(&env, group_id, &member).ok_or(ContractError::MemberNotFound)?;
         Ok(m.total_contributed)
+    }
+
+    /// Read-only: returns the address of the member holding a given payout position.
+    pub fn get_payout_recipient(
+        env: Env,
+        group_id: u64,
+        position: u32,
+    ) -> Result<Address, ContractError> {
+        load_position_index(&env, group_id, position).ok_or(ContractError::MemberNotFound)
     }
 }

@@ -30,7 +30,11 @@ fn enforce_auth_rate_limit(
     ip: &str,
     email: &str,
 ) -> AppResult<()> {
-    let ip_ok = limiter.check(&format!("{scope}:ip:{ip}"), RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW);
+    let ip_ok = limiter.check(
+        &format!("{scope}:ip:{ip}"),
+        RATE_LIMIT_MAX_ATTEMPTS,
+        RATE_LIMIT_WINDOW,
+    );
     let email_ok = limiter.check(
         &format!("{scope}:email:{email}"),
         RATE_LIMIT_MAX_ATTEMPTS,
@@ -111,7 +115,12 @@ pub async fn register(
         .map_err(|e| AppError::BadRequest(format!("{e}")))?;
 
     let email = AuthService::normalize_email(&payload.email);
-    enforce_auth_rate_limit(&state.auth_rate_limiter, "register", &addr.ip().to_string(), &email)?;
+    enforce_auth_rate_limit(
+        &state.auth_rate_limiter,
+        "register",
+        &addr.ip().to_string(),
+        &email,
+    )?;
 
     let user = AuthService::register(
         &state.db,
@@ -138,7 +147,12 @@ pub async fn login(
         .map_err(|e| AppError::BadRequest(format!("{e}")))?;
 
     let email = AuthService::normalize_email(&payload.email);
-    enforce_auth_rate_limit(&state.auth_rate_limiter, "login", &addr.ip().to_string(), &email)?;
+    enforce_auth_rate_limit(
+        &state.auth_rate_limiter,
+        "login",
+        &addr.ip().to_string(),
+        &email,
+    )?;
 
     let token_pair = AuthService::login(
         &state.db,
@@ -195,9 +209,11 @@ pub async fn resend_verification(
         .map_err(|e| AppError::BadRequest(format!("{e}")))?;
 
     let email = AuthService::normalize_email(&payload.email);
-    let allowed = state
-        .auth_rate_limiter
-        .check(&format!("resend_verification:email:{email}"), 1, Duration::from_secs(60));
+    let allowed = state.auth_rate_limiter.check(
+        &format!("resend_verification:email:{email}"),
+        1,
+        Duration::from_secs(60),
+    );
     if !allowed {
         return Err(AppError::TooManyRequests);
     }

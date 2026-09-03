@@ -152,7 +152,10 @@ impl StellarService {
             .map_err(|e| AppError::Stellar(format!("Failed to parse RPC response: {e}")))?;
 
         if let Some(err) = rpc_response.error {
-            return Err(AppError::Stellar(format!("Contract error: {}", err.message)));
+            return Err(AppError::Stellar(format!(
+                "Contract error: {}",
+                err.message
+            )));
         }
 
         rpc_response

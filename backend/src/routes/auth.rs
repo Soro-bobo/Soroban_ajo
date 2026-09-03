@@ -9,7 +9,8 @@ use validator::Validate;
 
 use crate::{
     controllers::auth_controller::{
-        forgot_password, login, refresh, register, resend_verification, reset_password, verify_email,
+        forgot_password, login, refresh, register, resend_verification, reset_password,
+        verify_email,
     },
     errors::{AppError, AppResult},
     middleware::auth::AuthenticatedUser,

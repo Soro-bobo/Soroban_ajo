@@ -96,9 +96,7 @@ pub fn cleanup_old_buckets(rate_limiter: Arc<RateLimitState>, max_idle: Duration
             interval.tick().await;
             let now = Instant::now();
             let mut buckets = rate_limiter.buckets.lock().expect("mutex not poisoned");
-            buckets.retain(|_, bucket| {
-                now.duration_since(bucket.last_refill) < max_idle
-            });
+            buckets.retain(|_, bucket| now.duration_since(bucket.last_refill) < max_idle);
         }
     });
 }

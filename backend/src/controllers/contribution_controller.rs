@@ -38,7 +38,7 @@ pub async fn record_contribution(
     }
 
     let member = sqlx::query_as::<_, crate::models::member::Member>(
-        "SELECT * FROM members WHERE group_id = $1 AND user_id = $2"
+        "SELECT * FROM members WHERE group_id = $1 AND user_id = $2",
     )
     .bind(payload.group_id)
     .bind(auth.user_id)

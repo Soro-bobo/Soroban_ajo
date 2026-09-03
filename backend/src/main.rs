@@ -7,7 +7,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 use ajo_backend::{
     config::Config,
     db,
-    middleware::rate_limit::{cleanup_old_buckets, cleanup_sliding_window, RateLimitState, SlidingWindowLimiter},
+    middleware::rate_limit::{
+        cleanup_old_buckets, cleanup_sliding_window, RateLimitState, SlidingWindowLimiter,
+    },
     routes::{build_router, health::init_start_time},
     services::stellar_service::StellarService,
     AppState,
@@ -18,9 +20,10 @@ async fn main() -> anyhow::Result<()> {
     dotenv().ok();
 
     tracing_subscriber::registry()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            "ajo_backend=debug,tower_http=info,sqlx=warn".into()
-        }))
+        .with(
+            EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "ajo_backend=debug,tower_http=info,sqlx=warn".into()),
+        )
         .with(
             tracing_subscriber::fmt::layer()
                 .json()
@@ -67,6 +70,23 @@ async fn main() -> anyhow::Result<()> {
                 match ajo_backend::services::contribution_service::ContributionService::detect_missed(&pool).await {
                     Ok(n) if n > 0 => tracing::info!(count = n, "Missed contributions detected"),
                     Err(e) => tracing::error!(error = %e, "Missed contribution scan failed"),
+                    _ => {}
+                }
+            }
+        });
+    }
+
+    // Upcoming-payout reminders — runs every 6 hours
+    {
+        let pool = state.db.clone();
+        let config = config.clone();
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(Duration::from_secs(6 * 3600));
+            loop {
+                interval.tick().await;
+                match ajo_backend::services::notification_service::NotificationService::send_due_reminders(&pool, &config).await {
+                    Ok(n) if n > 0 => tracing::info!(count = n, "Payout reminders sent"),
+                    Err(e) => tracing::error!(error = %e, "Payout reminder scan failed"),
                     _ => {}
                 }
             }

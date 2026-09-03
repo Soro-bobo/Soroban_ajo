@@ -11,7 +11,13 @@ impl EmailService {
     // path is Resend's raw response — neither may be logged, or log access becomes
     // an account-takeover primitive. Only non-sensitive fields are traced.
     #[tracing::instrument(skip(api_key, html, from, subject), fields(to = %to))]
-    async fn send(api_key: &str, from: &str, to: &str, subject: &str, html: String) -> AppResult<()> {
+    async fn send(
+        api_key: &str,
+        from: &str,
+        to: &str,
+        subject: &str,
+        html: String,
+    ) -> AppResult<()> {
         let client = reqwest::Client::new();
 
         let response = client
@@ -83,6 +89,61 @@ impl EmailService {
             ),
         );
         Self::send(api_key, from, to, "Reset your Ajo Platform password", html).await
+    }
+
+    pub async fn send_payout_reminder_email(
+        api_key: &str,
+        from: &str,
+        to: &str,
+        display_name: &str,
+        group_name: &str,
+        scheduled_date: &str,
+        amount: &str,
+    ) -> AppResult<()> {
+        let html = layout(
+            "Your payout is coming up",
+            &format!(
+                r#"<p>Hi {display_name},</p>
+                <p>You're next in line for a payout in <strong>{group_name}</strong>, scheduled for {scheduled_date}.</p>
+                <p style="font-size:18px;font-weight:700;margin:20px 0;">{amount} XLM</p>
+                <p style="color:#6b7280;font-size:13px;">Make sure all members are caught up on their contributions so the payout can go out on time.</p>"#
+            ),
+        );
+        Self::send(
+            api_key,
+            from,
+            to,
+            &format!("Your {group_name} payout is coming up"),
+            html,
+        )
+        .await
+    }
+
+    pub async fn send_payout_received_email(
+        api_key: &str,
+        from: &str,
+        to: &str,
+        display_name: &str,
+        group_name: &str,
+        amount: &str,
+    ) -> AppResult<()> {
+        let html = layout(
+            "You've been paid out",
+            &format!(
+                r#"<p>Hi {display_name},</p>
+                <p>Your payout for <strong>{group_name}</strong> has been recorded as sent.</p>
+                <p style="font-size:18px;font-weight:700;margin:20px 0;">{amount} XLM</p>
+                <p style="color:#6b7280;font-size:13px;">Thanks for saving with Ajo Platform.</p>"#
+            ),
+        );
+        Self::send(
+            api_key,
+            from,
+            to,
+            &format!("You've received your {group_name} payout"),
+            html,
+        )
+        .await
     }
 }
 

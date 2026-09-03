@@ -21,6 +21,7 @@ pub struct PayoutScheduleRow {
     pub payout_round: i32,
     pub scheduled_date: NaiveDate,
     pub paid_at: Option<chrono::DateTime<Utc>>,
+    pub reminder_sent_at: Option<chrono::DateTime<Utc>>,
     pub amount: Option<rust_decimal::Decimal>,
 }
 
@@ -28,12 +29,20 @@ pub struct GroupService;
 
 impl GroupService {
     #[tracing::instrument(skip(pool, input), fields(creator_id = %creator_id, name = %input.name))]
-    pub async fn create(pool: &PgPool, creator_id: Uuid, input: CreateGroupInput) -> AppResult<Group> {
+    pub async fn create(
+        pool: &PgPool,
+        creator_id: Uuid,
+        input: CreateGroupInput,
+    ) -> AppResult<Group> {
         if input.max_members < 2 || input.max_members > 50 {
-            return Err(AppError::BadRequest("max_members must be between 2 and 50".to_string()));
+            return Err(AppError::BadRequest(
+                "max_members must be between 2 and 50".to_string(),
+            ));
         }
         if input.contribution_amount <= rust_decimal::Decimal::ZERO {
-            return Err(AppError::BadRequest("contribution_amount must be greater than 0".to_string()));
+            return Err(AppError::BadRequest(
+                "contribution_amount must be greater than 0".to_string(),
+            ));
         }
 
         // Insert group + creator member in a transaction; return the fully updated group
@@ -84,7 +93,9 @@ impl GroupService {
         let group = Self::get_by_id(pool, group_id).await?;
 
         if group.status != GroupStatus::Pending && group.status != GroupStatus::Active {
-            return Err(AppError::BadRequest("Group is not accepting new members".to_string()));
+            return Err(AppError::BadRequest(
+                "Group is not accepting new members".to_string(),
+            ));
         }
         if group.current_members >= group.max_members {
             return Err(AppError::Conflict("Group is full".to_string()));
@@ -93,9 +104,14 @@ impl GroupService {
         let already = sqlx::query_scalar::<_, i64>(
             "SELECT COUNT(*) FROM members WHERE group_id = $1 AND user_id = $2",
         )
-        .bind(group_id).bind(user_id).fetch_one(pool).await?;
+        .bind(group_id)
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?;
         if already > 0 {
-            return Err(AppError::Conflict("Already a member of this group".to_string()));
+            return Err(AppError::Conflict(
+                "Already a member of this group".to_string(),
+            ));
         }
 
         let next_position = group.current_members + 1;
@@ -120,13 +136,19 @@ impl GroupService {
     pub async fn activate(pool: &PgPool, group_id: Uuid, creator_id: Uuid) -> AppResult<Group> {
         let group = Self::get_by_id(pool, group_id).await?;
         if group.creator_id != creator_id {
-            return Err(AppError::Forbidden("Only the creator can activate this group".to_string()));
+            return Err(AppError::Forbidden(
+                "Only the creator can activate this group".to_string(),
+            ));
         }
         if group.status != GroupStatus::Pending {
-            return Err(AppError::BadRequest("Group must be in PENDING status to activate".to_string()));
+            return Err(AppError::BadRequest(
+                "Group must be in PENDING status to activate".to_string(),
+            ));
         }
         if group.current_members < 2 {
-            return Err(AppError::BadRequest("Group needs at least 2 members to activate".to_string()));
+            return Err(AppError::BadRequest(
+                "Group needs at least 2 members to activate".to_string(),
+            ));
         }
 
         let mut tx = pool.begin().await?;
@@ -142,8 +164,10 @@ impl GroupService {
         .bind(group_id).fetch_all(&mut *tx).await?;
 
         for member in &members {
-            let scheduled_date = compute_payout_date(group.start_date, member.payout_position, &group.frequency);
-            let payout_amount = group.contribution_amount * rust_decimal::Decimal::from(members.len() as i64);
+            let scheduled_date =
+                compute_payout_date(group.start_date, member.payout_position, &group.frequency);
+            let payout_amount =
+                group.contribution_amount * rust_decimal::Decimal::from(members.len() as i64);
 
             sqlx::query(
                 r#"
@@ -169,12 +193,17 @@ impl GroupService {
     #[tracing::instrument(skip(pool), fields(group_id = %id))]
     pub async fn get_by_id(pool: &PgPool, id: Uuid) -> AppResult<Group> {
         sqlx::query_as::<_, Group>("SELECT * FROM groups WHERE id = $1")
-            .bind(id).fetch_optional(pool).await?
+            .bind(id)
+            .fetch_optional(pool)
+            .await?
             .ok_or_else(|| AppError::NotFound(format!("Group {id} not found")))
     }
 
     #[tracing::instrument(skip(pool))]
-    pub async fn list(pool: &PgPool, query: ListGroupsQuery) -> AppResult<PaginatedResponse<Group>> {
+    pub async fn list(
+        pool: &PgPool,
+        query: ListGroupsQuery,
+    ) -> AppResult<PaginatedResponse<Group>> {
         let limit = clamp_limit(query.limit);
         let fetch_limit = limit + 1;
 
@@ -206,7 +235,8 @@ impl GroupService {
         };
 
         let total = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM groups")
-            .fetch_one(pool).await?;
+            .fetch_one(pool)
+            .await?;
         let last_id = groups.last().map(|g| g.id);
         Ok(PaginatedResponse::new(groups, limit, total, last_id))
     }
@@ -225,18 +255,23 @@ impl GroupService {
             ORDER BY m.payout_position ASC
             "#,
         )
-        .bind(group_id).fetch_all(pool).await?;
+        .bind(group_id)
+        .fetch_all(pool)
+        .await?;
         Ok(members)
     }
 
     #[tracing::instrument(skip(pool), fields(group_id = %group_id))]
-    pub async fn get_payout_schedule(pool: &PgPool, group_id: Uuid) -> AppResult<Vec<PayoutScheduleRow>> {
+    pub async fn get_payout_schedule(
+        pool: &PgPool,
+        group_id: Uuid,
+    ) -> AppResult<Vec<PayoutScheduleRow>> {
         let _ = Self::get_by_id(pool, group_id).await?;
         let rows = sqlx::query_as::<_, PayoutScheduleRow>(
             r#"
             SELECT ps.id, ps.group_id, ps.member_id,
                    u.display_name,
-                   ps.payout_round, ps.scheduled_date, ps.paid_at, ps.amount
+                   ps.payout_round, ps.scheduled_date, ps.paid_at, ps.reminder_sent_at, ps.amount
             FROM payout_schedule ps
             JOIN members m ON m.id = ps.member_id
             JOIN users u ON u.id = m.user_id
@@ -244,7 +279,9 @@ impl GroupService {
             ORDER BY ps.payout_round ASC
             "#,
         )
-        .bind(group_id).fetch_all(pool).await?;
+        .bind(group_id)
+        .fetch_all(pool)
+        .await?;
         Ok(rows)
     }
 
@@ -279,8 +316,11 @@ impl GroupService {
         sqlx::query(
             "UPDATE payout_schedule SET paid_at = $1 WHERE group_id = $2 AND payout_round = $3",
         )
-        .bind(Utc::now()).bind(group_id).bind(group.current_payout_position)
-        .execute(&mut *tx).await?;
+        .bind(Utc::now())
+        .bind(group_id)
+        .bind(group.current_payout_position)
+        .execute(&mut *tx)
+        .await?;
 
         tx.commit().await?;
         tracing::info!(group_id = %group_id, next_position = %next_position, "Payout advanced");
@@ -288,10 +328,16 @@ impl GroupService {
     }
 }
 
-fn compute_payout_date(start: NaiveDate, round: i32, frequency: &ContributionFrequency) -> NaiveDate {
+fn compute_payout_date(
+    start: NaiveDate,
+    round: i32,
+    frequency: &ContributionFrequency,
+) -> NaiveDate {
     match frequency {
         ContributionFrequency::Weekly => start + chrono::Duration::weeks((round - 1) as i64),
-        ContributionFrequency::Biweekly => start + chrono::Duration::weeks(((round - 1) * 2) as i64),
+        ContributionFrequency::Biweekly => {
+            start + chrono::Duration::weeks(((round - 1) * 2) as i64)
+        }
         ContributionFrequency::Monthly => {
             let months = (round - 1) as u32;
             let y = start.year() + ((start.month0() + months) / 12) as i32;

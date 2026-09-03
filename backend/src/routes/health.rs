@@ -12,10 +12,7 @@ pub fn init_start_time() {
 
 pub async fn health_check(State(state): State<AppState>) -> impl IntoResponse {
     let db_ok = check_health(&state.db).await;
-    let uptime_secs = START_TIME
-        .get()
-        .map(|t| t.elapsed().as_secs())
-        .unwrap_or(0);
+    let uptime_secs = START_TIME.get().map(|t| t.elapsed().as_secs()).unwrap_or(0);
 
     let status = if db_ok { "healthy" } else { "degraded" };
 

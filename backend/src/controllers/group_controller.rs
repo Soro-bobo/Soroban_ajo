@@ -12,7 +12,10 @@ use crate::{
     errors::{AppError, AppResult},
     middleware::auth::AuthenticatedUser,
     models::group::{CreateGroupInput, ListGroupsQuery},
-    services::{auth_service::AuthService, group_service::GroupService},
+    services::{
+        auth_service::AuthService, group_service::GroupService,
+        notification_service::NotificationService,
+    },
     AppState,
 };
 
@@ -122,7 +125,7 @@ pub async fn get_group_stats(
     let group = GroupService::get_by_id(&state.db, id).await?;
 
     let total_contributed = sqlx::query_scalar::<_, Option<rust_decimal::Decimal>>(
-        "SELECT SUM(amount) FROM contributions WHERE group_id = $1 AND status = 'confirmed'"
+        "SELECT SUM(amount) FROM contributions WHERE group_id = $1 AND status = 'confirmed'",
     )
     .bind(id)
     .fetch_one(&state.db)
@@ -130,7 +133,7 @@ pub async fn get_group_stats(
     .unwrap_or(rust_decimal::Decimal::ZERO);
 
     let contribution_count = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM contributions WHERE group_id = $1 AND status = 'confirmed'"
+        "SELECT COUNT(*) FROM contributions WHERE group_id = $1 AND status = 'confirmed'",
     )
     .bind(id)
     .fetch_one(&state.db)
@@ -166,7 +169,17 @@ pub async fn advance_payout(
             "Only the group creator can advance the payout".to_string(),
         ));
     }
+    let position_paid = group.current_payout_position;
+
     GroupService::advance_payout(&state.db, id).await?;
     let updated = GroupService::get_by_id(&state.db, id).await?;
+
+    if let Err(e) =
+        NotificationService::notify_payout_recipient(&state.db, &state.config, id, position_paid)
+            .await
+    {
+        tracing::error!(error = %e, group_id = %id, position = position_paid, "Failed to send payout notification");
+    }
+
     Ok(Json(updated))
 }

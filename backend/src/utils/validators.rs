@@ -42,12 +42,16 @@ pub fn validate_password_strength(password: &str) -> Result<(), ValidationError>
 
     if !has_upper {
         let mut err = ValidationError::new("password_missing_uppercase");
-        err.message = Some(Cow::from("Password must include at least one uppercase letter"));
+        err.message = Some(Cow::from(
+            "Password must include at least one uppercase letter",
+        ));
         return Err(err);
     }
     if !has_lower {
         let mut err = ValidationError::new("password_missing_lowercase");
-        err.message = Some(Cow::from("Password must include at least one lowercase letter"));
+        err.message = Some(Cow::from(
+            "Password must include at least one lowercase letter",
+        ));
         return Err(err);
     }
     if !has_digit {

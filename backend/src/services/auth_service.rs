@@ -87,8 +87,7 @@ impl AuthService {
         user: &User,
     ) -> AppResult<()> {
         let token = generate_opaque_token();
-        let expires_at =
-            Utc::now() + Duration::hours(config.email_verification_token_expiry_hours);
+        let expires_at = Utc::now() + Duration::hours(config.email_verification_token_expiry_hours);
 
         sqlx::query(
             "INSERT INTO email_verification_tokens (id, user_id, token_hash, expires_at) VALUES ($1, $2, $3, $4)",
@@ -122,11 +121,12 @@ impl AuthService {
     ) -> AppResult<TokenPair> {
         let email = Self::normalize_email(email);
 
-        let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1 AND is_active = true")
-            .bind(&email)
-            .fetch_optional(pool)
-            .await?
-            .ok_or_else(|| AppError::Unauthorized(GENERIC_LOGIN_ERROR.to_string()))?;
+        let user =
+            sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1 AND is_active = true")
+                .bind(&email)
+                .fetch_optional(pool)
+                .await?
+                .ok_or_else(|| AppError::Unauthorized(GENERIC_LOGIN_ERROR.to_string()))?;
 
         // Same generic error whether the email doesn't exist or the password is wrong,
         // so login failures can't be used to enumerate registered accounts.
@@ -185,14 +185,17 @@ impl AuthService {
         }
 
         if row.expires_at < Utc::now() {
-            return Err(AppError::Unauthorized("Invalid or expired refresh token".to_string()));
+            return Err(AppError::Unauthorized(
+                "Invalid or expired refresh token".to_string(),
+            ));
         }
 
-        let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1 AND is_active = true")
-            .bind(row.user_id)
-            .fetch_optional(pool)
-            .await?
-            .ok_or_else(|| AppError::Unauthorized("User not found".to_string()))?;
+        let user =
+            sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1 AND is_active = true")
+                .bind(row.user_id)
+                .fetch_optional(pool)
+                .await?
+                .ok_or_else(|| AppError::Unauthorized("User not found".to_string()))?;
 
         sqlx::query("UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1")
             .bind(row.id)
@@ -227,7 +230,9 @@ impl AuthService {
         .ok_or_else(|| AppError::BadRequest("Invalid or expired verification token".to_string()))?;
 
         if row.expires_at < Utc::now() {
-            return Err(AppError::BadRequest("Invalid or expired verification token".to_string()));
+            return Err(AppError::BadRequest(
+                "Invalid or expired verification token".to_string(),
+            ));
         }
 
         let mut tx = pool.begin().await?;
@@ -276,10 +281,11 @@ impl AuthService {
     pub async fn forgot_password(pool: &PgPool, config: &Config, email: &str) -> AppResult<()> {
         let email = Self::normalize_email(email);
 
-        let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1 AND is_active = true")
-            .bind(&email)
-            .fetch_optional(pool)
-            .await?;
+        let user =
+            sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1 AND is_active = true")
+                .bind(&email)
+                .fetch_optional(pool)
+                .await?;
 
         if let Some(user) = user {
             let token = generate_opaque_token();
@@ -331,7 +337,9 @@ impl AuthService {
         .ok_or_else(|| AppError::BadRequest("Invalid or expired reset token".to_string()))?;
 
         if row.expires_at < Utc::now() {
-            return Err(AppError::BadRequest("Invalid or expired reset token".to_string()));
+            return Err(AppError::BadRequest(
+                "Invalid or expired reset token".to_string(),
+            ));
         }
 
         let password_hash = PasswordService::hash(new_password)?;
@@ -368,11 +376,12 @@ impl AuthService {
     /// Checked against the DB rather than the JWT claim so verification takes
     /// effect immediately instead of waiting for the access token to expire.
     pub async fn require_verified(pool: &PgPool, user_id: Uuid) -> AppResult<()> {
-        let verified = sqlx::query_scalar::<_, bool>("SELECT email_verified FROM users WHERE id = $1")
-            .bind(user_id)
-            .fetch_optional(pool)
-            .await?
-            .ok_or_else(|| AppError::NotFound("User not found".to_string()))?;
+        let verified =
+            sqlx::query_scalar::<_, bool>("SELECT email_verified FROM users WHERE id = $1")
+                .bind(user_id)
+                .fetch_optional(pool)
+                .await?
+                .ok_or_else(|| AppError::NotFound("User not found".to_string()))?;
 
         if !verified {
             return Err(AppError::Forbidden(

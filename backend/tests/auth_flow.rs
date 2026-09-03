@@ -107,7 +107,11 @@ async fn duplicate_email_registration_is_rejected(pool: PgPool) {
 
     let first = app
         .clone()
-        .oneshot(json_request("POST", "/api/v1/auth/register", payload.clone()))
+        .oneshot(json_request(
+            "POST",
+            "/api/v1/auth/register",
+            payload.clone(),
+        ))
         .await
         .unwrap();
     assert_eq!(first.status(), StatusCode::CREATED);
@@ -237,7 +241,10 @@ async fn valid_verification_token_verifies_email_once(pool: PgPool) {
 
     // Reusing the same (now-consumed) token must fail.
     let err = AuthService::verify_email(&pool, token_plain).await;
-    assert!(err.is_err(), "an already-used verification token must not verify twice");
+    assert!(
+        err.is_err(),
+        "an already-used verification token must not verify twice"
+    );
 }
 
 #[sqlx::test]
@@ -280,7 +287,10 @@ async fn refresh_token_reuse_revokes_the_session_family(pool: PgPool) {
         config.jwt_refresh_expiry_secs,
     )
     .await;
-    assert!(reuse_err.is_err(), "reusing a rotated-out refresh token must fail");
+    assert!(
+        reuse_err.is_err(),
+        "reusing a rotated-out refresh token must fail"
+    );
 
     // ...and must also invalidate the token that would have chained from it, i.e. the
     // whole family is dead, including the legitimately-rotated one.
@@ -311,7 +321,11 @@ async fn login_rate_limit_triggers_after_max_attempts(pool: PgPool) {
     });
     let created = app
         .clone()
-        .oneshot(json_request("POST", "/api/v1/auth/register", register_payload))
+        .oneshot(json_request(
+            "POST",
+            "/api/v1/auth/register",
+            register_payload,
+        ))
         .await
         .unwrap();
     assert_eq!(created.status(), StatusCode::CREATED);
@@ -321,7 +335,11 @@ async fn login_rate_limit_triggers_after_max_attempts(pool: PgPool) {
     for attempt in 0..5 {
         let response = app
             .clone()
-            .oneshot(json_request("POST", "/api/v1/auth/login", bad_login.clone()))
+            .oneshot(json_request(
+                "POST",
+                "/api/v1/auth/login",
+                bad_login.clone(),
+            ))
             .await
             .unwrap();
         assert_eq!(
@@ -391,7 +409,10 @@ async fn password_reset_invalidates_existing_sessions(pool: PgPool) {
         config.jwt_refresh_expiry_secs,
     )
     .await;
-    assert!(err.is_err(), "password reset must invalidate pre-existing refresh tokens");
+    assert!(
+        err.is_err(),
+        "password reset must invalidate pre-existing refresh tokens"
+    );
 
     // Old password no longer works; new one does.
     let old_login = AuthService::login(
@@ -448,5 +469,8 @@ async fn login_never_reveals_whether_the_email_exists(pool: PgPool) {
     .await
     .expect_err("unknown email should fail");
 
-    assert_eq!(wrong_password_err.to_string(), unknown_email_err.to_string());
+    assert_eq!(
+        wrong_password_err.to_string(),
+        unknown_email_err.to_string()
+    );
 }

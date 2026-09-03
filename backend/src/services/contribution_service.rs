@@ -21,7 +21,7 @@ impl ContributionService {
     ) -> AppResult<Contribution> {
         // Verify member belongs to group
         let member_exists = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM members WHERE id = $1 AND group_id = $2"
+            "SELECT COUNT(*) FROM members WHERE id = $1 AND group_id = $2",
         )
         .bind(member_id)
         .bind(input.group_id)
@@ -35,12 +35,11 @@ impl ContributionService {
         }
 
         // Check for duplicate tx_hash
-        let duplicate = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM contributions WHERE tx_hash = $1"
-        )
-        .bind(&input.tx_hash)
-        .fetch_one(pool)
-        .await?;
+        let duplicate =
+            sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM contributions WHERE tx_hash = $1")
+                .bind(&input.tx_hash)
+                .fetch_one(pool)
+                .await?;
 
         if duplicate > 0 {
             return Err(AppError::Conflict(
@@ -137,7 +136,7 @@ impl ContributionService {
             }
             _ => {
                 sqlx::query_as::<_, Contribution>(
-                    "SELECT * FROM contributions WHERE group_id = $1 ORDER BY id ASC LIMIT $2"
+                    "SELECT * FROM contributions WHERE group_id = $1 ORDER BY id ASC LIMIT $2",
                 )
                 .bind(group_id)
                 .bind(fetch_limit)
@@ -146,12 +145,11 @@ impl ContributionService {
             }
         };
 
-        let total = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM contributions WHERE group_id = $1"
-        )
-        .bind(group_id)
-        .fetch_one(pool)
-        .await?;
+        let total =
+            sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM contributions WHERE group_id = $1")
+                .bind(group_id)
+                .fetch_one(pool)
+                .await?;
 
         let last_id = contributions.last().map(|c| c.id);
         Ok(PaginatedResponse::new(contributions, limit, total, last_id))

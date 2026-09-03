@@ -14,17 +14,17 @@ function CheckEmailContent() {
   const [sent, setSent] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center space-y-4">
-      <div className="mx-auto h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center space-y-4 dark:bg-gray-900 dark:border-gray-800">
+      <div className="mx-auto h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
         <span className="text-2xl">✉️</span>
       </div>
-      <h1 className="text-xl font-bold text-gray-900">Check your email</h1>
-      <p className="text-sm text-gray-500">
+      <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">Check your email</h1>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
         We sent a verification link to{" "}
-        {email ? <span className="font-medium text-gray-700">{email}</span> : "your email address"}.
+        {email ? <span className="font-medium text-gray-700 dark:text-gray-200">{email}</span> : "your email address"}.
         Click the link to activate your account.
       </p>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 dark:text-gray-500">
         You can sign in before verifying, but you&apos;ll need to verify your email to create or join
         savings groups.
       </p>

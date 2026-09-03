@@ -2,6 +2,7 @@
 
 import { Menu, Bell } from "lucide-react";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuthStore } from "@/store/authStore";
 
 interface NavbarProps {
@@ -12,11 +13,11 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const { user } = useAuthStore();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 md:px-6 dark:border-gray-800 dark:bg-gray-900">
       {/* Mobile menu toggle */}
       <button
         onClick={onMenuClick}
-        className="md:hidden text-gray-500 hover:text-gray-700 transition-colors"
+        className="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
         aria-label="Open sidebar"
       >
         <Menu className="h-6 w-6" />
@@ -29,8 +30,10 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <div className="flex items-center gap-3">
         <WalletConnect />
 
+        <ThemeToggle className="hidden sm:flex" />
+
         <button
-          className="hidden sm:flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+          className="hidden sm:flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors"
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
@@ -38,12 +41,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
         {user && (
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
-              <span className="text-emerald-700 font-semibold text-sm">
+            <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+              <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
                 {user.display_name.charAt(0).toUpperCase()}
               </span>
             </div>
-            <span className="text-sm font-medium text-gray-700 hidden md:block">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden md:block">
               {user.display_name}
             </span>
           </div>

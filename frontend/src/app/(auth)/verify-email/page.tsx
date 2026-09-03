@@ -27,21 +27,21 @@ function VerifyEmailContent() {
   }, [token, verify]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center space-y-4">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center space-y-4 dark:bg-gray-900 dark:border-gray-800">
       {status === "verifying" && (
         <>
-          <h1 className="text-xl font-bold text-gray-900">Verifying your email…</h1>
-          <p className="text-sm text-gray-500">This will only take a moment.</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">Verifying your email…</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">This will only take a moment.</p>
         </>
       )}
 
       {status === "success" && (
         <>
-          <div className="mx-auto h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
             <span className="text-2xl">✅</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Email verified</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">Email verified</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             You&apos;re all set — you can now create and join savings groups.
           </p>
           <Link href={ROUTES.LOGIN}>
@@ -52,11 +52,11 @@ function VerifyEmailContent() {
 
       {status === "error" && (
         <>
-          <div className="mx-auto h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center">
             <span className="text-2xl">⚠️</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Verification link invalid or expired</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">Verification link invalid or expired</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Request a new link from the check-your-email screen after signing in.
           </p>
           <Link href={ROUTES.LOGIN} className="block text-sm text-emerald-600 hover:underline">

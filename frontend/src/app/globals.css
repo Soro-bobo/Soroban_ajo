@@ -12,6 +12,10 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
   dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);

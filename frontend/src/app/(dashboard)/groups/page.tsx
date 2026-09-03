@@ -33,15 +33,15 @@ export default function GroupsPage() {
         }
       />
 
-      <div className="flex gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
+      <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-900 rounded-lg p-1 w-fit">
         {STATUS_TABS.map(({ label, value }) => (
           <button
             key={label}
             onClick={() => setActiveTab(value)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               activeTab === value
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-50"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
             {label}

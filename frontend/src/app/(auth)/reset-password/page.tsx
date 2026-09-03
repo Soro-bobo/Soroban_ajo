@@ -39,9 +39,9 @@ function ResetPasswordContent() {
 
   if (!token) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center space-y-4">
-        <h1 className="text-xl font-bold text-gray-900">Missing reset token</h1>
-        <p className="text-sm text-gray-500">Use the link from your password reset email.</p>
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center space-y-4 dark:bg-gray-900 dark:border-gray-800">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">Missing reset token</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Use the link from your password reset email.</p>
         <Link href={ROUTES.FORGOT_PASSWORD} className="block text-sm text-emerald-600 hover:underline">
           Request a new link
         </Link>
@@ -51,12 +51,12 @@ function ResetPasswordContent() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 text-center mb-1">Choose a new password</h1>
-      <p className="text-sm text-gray-500 text-center mb-6">Make it something you haven&apos;t used before</p>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 text-center mb-1">Choose a new password</h1>
+      <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">Make it something you haven&apos;t used before</p>
 
       <form
         onSubmit={handleSubmit((data) => resetPassword({ token, new_password: data.new_password }))}
-        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
+        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:bg-gray-900 dark:border-gray-800"
       >
         <div className="space-y-2">
           <Input

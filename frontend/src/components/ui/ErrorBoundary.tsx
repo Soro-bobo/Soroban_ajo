@@ -40,13 +40,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
       return (
         <div className="flex flex-col items-center justify-center min-h-[300px] p-8 text-center">
-          <div className="rounded-full bg-red-50 p-4 mb-4">
-            <AlertTriangle className="h-8 w-8 text-red-500" />
+          <div className="rounded-full bg-red-50 dark:bg-red-500/10 p-4 mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500 dark:text-red-400" />
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
             Something went wrong
           </h2>
-          <p className="text-sm text-gray-500 mb-6 max-w-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
             {this.state.error?.message ?? "An unexpected error occurred. Please try again."}
           </p>
           <Button

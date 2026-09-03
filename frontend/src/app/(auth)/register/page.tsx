@@ -41,8 +41,8 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 text-center mb-1">Create your account</h1>
-      <p className="text-sm text-gray-500 text-center mb-6">Start saving with your community</p>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 text-center mb-1">Create your account</h1>
+      <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">Start saving with your community</p>
 
       <form
         onSubmit={handleSubmit((data) =>
@@ -51,7 +51,7 @@ export default function RegisterPage() {
             wallet_address: data.wallet_address || undefined,
           })
         )}
-        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
+        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:bg-gray-900 dark:border-gray-800"
       >
         <Input
           label="Display Name"
@@ -95,7 +95,7 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-gray-500">
+      <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
         Already have an account?{" "}
         <Link href={ROUTES.LOGIN} className="text-emerald-600 hover:underline font-medium">
           Sign in

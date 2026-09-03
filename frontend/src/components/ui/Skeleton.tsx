@@ -11,7 +11,7 @@ export function Skeleton({ className, rounded }: SkeletonProps) {
     <div
       className={twMerge(
         clsx(
-          "animate-pulse bg-gray-200",
+          "animate-pulse bg-gray-200 dark:bg-gray-800",
           rounded ? "rounded-full" : "rounded-md",
           className
         )
@@ -23,7 +23,7 @@ export function Skeleton({ className, rounded }: SkeletonProps) {
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-3">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-3 dark:border-gray-800 dark:bg-gray-900">
       <Skeleton className="h-5 w-3/4" />
       <Skeleton className="h-4 w-1/2" />
       <div className="flex gap-2 pt-1">
@@ -52,7 +52,7 @@ export function TableRowSkeleton({ cols = 4 }: { cols?: number }) {
 
 export function DashboardStatSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
       <Skeleton className="h-4 w-24 mb-3" />
       <Skeleton className="h-8 w-32 mb-1" />
       <Skeleton className="h-3 w-20" />

@@ -26,14 +26,14 @@ export default function ForgotPasswordPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 text-center mb-1">Reset your password</h1>
-      <p className="text-sm text-gray-500 text-center mb-6">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 text-center mb-1">Reset your password</h1>
+      <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
         Enter the email on your account and we&apos;ll send a reset link
       </p>
 
       <form
         onSubmit={handleSubmit((data) => forgotPassword(data))}
-        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4"
+        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:bg-gray-900 dark:border-gray-800"
       >
         <Input
           label="Email"
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-gray-500">
+      <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
         <Link href={ROUTES.LOGIN} className="text-emerald-600 hover:underline font-medium">
           Back to sign in
         </Link>

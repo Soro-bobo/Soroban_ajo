@@ -11,7 +11,7 @@ export function WalletConnect() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-600 font-mono">
+        <span className="text-sm text-gray-600 dark:text-gray-300 font-mono">
           {address.slice(0, 6)}…{address.slice(-4)}
         </span>
         <Button

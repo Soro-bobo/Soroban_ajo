@@ -12,10 +12,10 @@ const icons: Record<ToastVariant, React.ReactNode> = {
 };
 
 const variantBg: Record<ToastVariant, string> = {
-  success: "border-green-200 bg-green-50",
-  error: "border-red-200 bg-red-50",
-  warning: "border-yellow-200 bg-yellow-50",
-  info: "border-blue-200 bg-blue-50",
+  success: "border-green-200 bg-green-50 dark:border-green-500/20 dark:bg-green-500/10",
+  error: "border-red-200 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10",
+  warning: "border-yellow-200 bg-yellow-50 dark:border-yellow-500/20 dark:bg-yellow-500/10",
+  info: "border-blue-200 bg-blue-50 dark:border-blue-500/20 dark:bg-blue-500/10",
 };
 
 export function ToastContainer() {
@@ -37,10 +37,10 @@ export function ToastContainer() {
           role="alert"
         >
           <span className="shrink-0 mt-0.5">{icons[toast.variant]}</span>
-          <p className="flex-1 text-sm text-gray-800">{toast.message}</p>
+          <p className="flex-1 text-sm text-gray-800 dark:text-gray-100">{toast.message}</p>
           <button
             onClick={() => dismiss(toast.id)}
-            className="shrink-0 text-gray-400 hover:text-gray-600"
+            className="shrink-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />

@@ -41,22 +41,22 @@ export default function DashboardPage() {
         ) : (
           <>
             <StatCard
-              icon={<Users className="h-5 w-5 text-emerald-600" />}
-              iconBg="bg-emerald-50"
+              icon={<Users className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />}
+              iconBg="bg-emerald-50 dark:bg-emerald-500/10"
               label="Active Groups"
               value={activeCount.toString()}
               sub="currently running"
             />
             <StatCard
-              icon={<TrendingUp className="h-5 w-5 text-sky-600" />}
-              iconBg="bg-sky-50"
+              icon={<TrendingUp className="h-5 w-5 text-sky-600 dark:text-sky-400" />}
+              iconBg="bg-sky-50 dark:bg-sky-500/10"
               label="Pending Groups"
               value={pendingCount.toString()}
               sub="awaiting activation"
             />
             <StatCard
-              icon={<Wallet className="h-5 w-5 text-violet-600" />}
-              iconBg="bg-violet-50"
+              icon={<Wallet className="h-5 w-5 text-violet-600 dark:text-violet-400" />}
+              iconBg="bg-violet-50 dark:bg-violet-500/10"
               label="XLM Balance"
               value={
                 isConnected && balance !== null
@@ -71,7 +71,7 @@ export default function DashboardPage() {
 
       {/* Active groups */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Active Groups</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Active Groups</h2>
         <Link href={ROUTES.GROUPS}>
           <Button variant="ghost" size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
             View all
@@ -97,15 +97,15 @@ function StatCard({
   sub: string;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center gap-3 mb-3">
         <div className={`h-9 w-9 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
           {icon}
         </div>
-        <span className="text-sm text-gray-500">{label}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-gray-900 tabular-nums">{value}</p>
-      <p className="text-xs text-gray-400 mt-1">{sub}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 tabular-nums">{value}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{sub}</p>
     </div>
   );
 }

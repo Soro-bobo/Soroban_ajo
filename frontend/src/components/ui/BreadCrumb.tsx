@@ -19,7 +19,7 @@ export function BreadCrumb({ items, className }: BreadCrumbProps) {
     <nav aria-label="Breadcrumb" className={clsx("flex items-center gap-1 text-sm", className)}>
       <Link
         href="/dashboard"
-        className="flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+        className="flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
         aria-label="Home"
       >
         <Home className="h-3.5 w-3.5" />
@@ -29,12 +29,12 @@ export function BreadCrumb({ items, className }: BreadCrumbProps) {
         const isLast = idx === items.length - 1;
         return (
           <span key={idx} className="flex items-center gap-1">
-            <ChevronRight className="h-3.5 w-3.5 text-gray-300 shrink-0" />
+            <ChevronRight className="h-3.5 w-3.5 text-gray-300 dark:text-gray-700 shrink-0" />
             {isLast || !item.href ? (
               <span
                 className={clsx(
                   "truncate max-w-[160px]",
-                  isLast ? "text-gray-700 font-medium" : "text-gray-400"
+                  isLast ? "text-gray-700 dark:text-gray-200 font-medium" : "text-gray-400 dark:text-gray-500"
                 )}
                 aria-current={isLast ? "page" : undefined}
               >
@@ -43,7 +43,7 @@ export function BreadCrumb({ items, className }: BreadCrumbProps) {
             ) : (
               <Link
                 href={item.href}
-                className="text-gray-400 hover:text-gray-600 transition-colors truncate max-w-[160px]"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors truncate max-w-[160px]"
               >
                 {item.label}
               </Link>

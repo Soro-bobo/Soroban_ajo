@@ -38,7 +38,7 @@ export default function DashboardLayout({
             className="absolute inset-0 bg-black/40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative z-50 flex flex-col h-full w-64 bg-white shadow-xl">
+          <div className="relative z-50 flex flex-col h-full w-64 bg-white shadow-xl dark:bg-gray-900">
             <Sidebar />
           </div>
         </div>

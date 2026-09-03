@@ -17,26 +17,26 @@ export function GroupCard({ group }: GroupCardProps) {
   return (
     <Link
       href={ROUTES.GROUP_DETAIL(group.id)}
-      className="block rounded-xl border border-gray-200 bg-white p-5 hover:border-brand-300 hover:shadow-md transition-all duration-200"
+      className="block rounded-xl border border-gray-200 bg-white p-5 hover:border-brand-300 hover:shadow-md transition-all duration-200 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-brand-600"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="font-semibold text-gray-900 text-base leading-tight line-clamp-1">
+        <h3 className="font-semibold text-gray-900 text-base leading-tight line-clamp-1 dark:text-gray-50">
           {group.name}
         </h3>
         <GroupStatusBadge status={group.status} />
       </div>
 
       {group.description && (
-        <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+        <p className="text-sm text-gray-500 line-clamp-2 mb-3 dark:text-gray-400">
           {group.description}
         </p>
       )}
 
-      <div className="flex flex-col gap-2 text-sm text-gray-600">
+      <div className="flex flex-col gap-2 text-sm text-gray-600 dark:text-gray-300">
         <div className="flex items-center gap-2">
-          <Coins className="h-4 w-4 text-brand-600 shrink-0" />
+          <Coins className="h-4 w-4 text-brand-600 dark:text-brand-400 shrink-0" />
           <span>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 dark:text-gray-50">
               {Number(group.contribution_amount).toLocaleString()} XLM
             </span>{" "}
             / {FREQUENCY_LABELS[group.frequency] ?? group.frequency}
@@ -44,12 +44,12 @@ export function GroupCard({ group }: GroupCardProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-gray-400 shrink-0" />
+          <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0" />
           <span>Starts {format(new Date(group.start_date), "MMM d, yyyy")}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-gray-400 shrink-0" />
+          <Users className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0" />
           <span>
             {group.current_members} / {group.max_members} members
           </span>
@@ -57,11 +57,11 @@ export function GroupCard({ group }: GroupCardProps) {
       </div>
 
       <div className="mt-4">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
           <span>Capacity</span>
           <span>{memberProgress}%</span>
         </div>
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
           <div
             className="h-full bg-brand-500 rounded-full transition-all"
             style={{ width: `${memberProgress}%` }}

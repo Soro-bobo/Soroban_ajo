@@ -46,9 +46,9 @@ export function GroupList({
 
   if (isError) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-        <p className="text-red-700 font-medium">Failed to load groups.</p>
-        <p className="text-red-500 text-sm mt-1">Please try again later.</p>
+      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10">
+        <p className="text-red-700 font-medium dark:text-red-400">Failed to load groups.</p>
+        <p className="text-red-500 text-sm mt-1 dark:text-red-400/80">Please try again later.</p>
       </div>
     );
   }
@@ -57,8 +57,8 @@ export function GroupList({
 
   if (groups.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-12 text-center">
-        <p className="text-gray-500 font-medium">{emptyMessage}</p>
+      <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-12 text-center dark:border-gray-700 dark:bg-gray-900/50">
+        <p className="text-gray-500 font-medium dark:text-gray-400">{emptyMessage}</p>
       </div>
     );
   }

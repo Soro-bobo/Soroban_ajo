@@ -21,14 +21,14 @@ export function Sidebar() {
   const logout = useLogout();
 
   return (
-    <aside className="flex flex-col w-64 min-h-screen border-r border-gray-200 bg-white">
+    <aside className="flex flex-col w-64 min-h-screen border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
+      <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
         <Link href={ROUTES.DASHBOARD} className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0">
             <span className="text-white font-bold text-sm">A</span>
           </div>
-          <span className="font-semibold text-gray-900">Ajo Platform</span>
+          <span className="font-semibold text-gray-900 dark:text-gray-50">Ajo Platform</span>
         </Link>
       </div>
 
@@ -47,14 +47,14 @@ export function Sidebar() {
               className={clsx(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
               )}
             >
               <Icon
                 className={clsx(
                   "h-5 w-5 shrink-0",
-                  isActive ? "text-emerald-600" : "text-gray-400"
+                  isActive ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400 dark:text-gray-500"
                 )}
               />
               {label}
@@ -65,21 +65,21 @@ export function Sidebar() {
 
       {/* User footer */}
       {user && (
-        <div className="border-t border-gray-200 p-3">
+        <div className="border-t border-gray-200 p-3 dark:border-gray-800">
           <div className="flex items-center gap-3 rounded-lg px-3 py-2.5">
-            <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-              <span className="text-emerald-700 font-semibold text-sm">
+            <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
                 {user.display_name.charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user.display_name}</p>
-              <p className="text-xs text-gray-400 truncate">{user.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">{user.display_name}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{user.email}</p>
             </div>
             <button
               onClick={logout}
               title="Sign out"
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
             >
               <LogOut className="h-4 w-4" />
             </button>

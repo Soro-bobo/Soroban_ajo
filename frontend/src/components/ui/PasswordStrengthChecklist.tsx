@@ -17,7 +17,7 @@ export function PasswordStrengthChecklist({ password }: { password: string }) {
         return (
           <li
             key={rule.label}
-            className={`flex items-center gap-1.5 ${met ? "text-emerald-600" : "text-gray-400"}`}
+            className={`flex items-center gap-1.5 ${met ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400 dark:text-gray-500"}`}
           >
             <span aria-hidden>{met ? "✓" : "○"}</span>
             {rule.label}

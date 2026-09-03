@@ -63,7 +63,7 @@ export default function NewGroupPage() {
       />
 
       {!emailVerified && (
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
           Verify your email before creating a group. Check your inbox for the verification link, or{" "}
           <Link href={`${ROUTES.CHECK_EMAIL}?email=`} className="font-medium underline">
             resend it
@@ -83,7 +83,7 @@ export default function NewGroupPage() {
             start_date: data.start_date,
           })
         )}
-        className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5"
+        className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5 dark:bg-gray-900 dark:border-gray-800"
       >
         <Input
           label="Group Name"
@@ -94,17 +94,17 @@ export default function NewGroupPage() {
         />
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Description
           </label>
           <textarea
             rows={3}
             placeholder="What is this group for?"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-900 dark:text-gray-50 dark:border-gray-700 dark:placeholder:text-gray-500"
             {...register("description")}
           />
           {errors.description && (
-            <p className="text-xs text-red-600">{errors.description.message}</p>
+            <p className="text-xs text-red-600 dark:text-red-400">{errors.description.message}</p>
           )}
         </div>
 
@@ -131,11 +131,11 @@ export default function NewGroupPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Frequency <span className="text-red-500">*</span>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Frequency <span className="text-red-500 dark:text-red-400">*</span>
           </label>
           <select
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-900 dark:text-gray-50 dark:border-gray-700"
             {...register("frequency")}
           >
             <option value="weekly">Weekly</option>
@@ -143,7 +143,7 @@ export default function NewGroupPage() {
             <option value="monthly">Monthly</option>
           </select>
           {errors.frequency && (
-            <p className="text-xs text-red-600">{errors.frequency.message}</p>
+            <p className="text-xs text-red-600 dark:text-red-400">{errors.frequency.message}</p>
           )}
         </div>
 

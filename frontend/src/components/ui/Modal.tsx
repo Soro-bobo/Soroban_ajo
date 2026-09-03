@@ -53,14 +53,14 @@ export function Modal({
   return (
     <dialog
       ref={dialogRef}
-      className={`w-full ${sizeClasses[size]} rounded-xl shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm p-0 border-0`}
+      className={`w-full ${sizeClasses[size]} rounded-xl shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm p-0 border-0 dark:bg-gray-900`}
       onClick={(e) => {
         if (e.target === dialogRef.current) onClose();
       }}
     >
       <div className="flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h2>
           <Button
             variant="ghost"
             size="sm"
@@ -75,7 +75,7 @@ export function Modal({
         <div className="px-6 py-4 overflow-y-auto flex-1">{children}</div>
 
         {footer && (
-          <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+          <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl dark:border-gray-800 dark:bg-gray-800/50">
             {footer}
           </div>
         )}

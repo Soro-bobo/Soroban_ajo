@@ -61,7 +61,7 @@ export default function GroupDetailPage({ params }: Props) {
   if (!group) {
     return (
       <div className="text-center py-16">
-        <p className="text-gray-500">Group not found.</p>
+        <p className="text-gray-500 dark:text-gray-400">Group not found.</p>
         <Link href={ROUTES.GROUPS}>
           <Button variant="ghost" className="mt-4">
             Back to Groups
@@ -110,28 +110,28 @@ export default function GroupDetailPage({ params }: Props) {
 
       <div className="flex flex-wrap gap-3 mb-6">
         <GroupStatusBadge status={group.status} />
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           {FREQUENCY_LABELS[group.frequency]} · {group.current_members}/
           {group.max_members} members
         </span>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           Starts {format(new Date(group.start_date), "MMM d, yyyy")}
         </span>
       </div>
 
       {group.description && (
-        <p className="text-gray-600 mb-6">{group.description}</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">{group.description}</p>
       )}
 
       {canActivate && (
-        <div className="mb-6 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-6 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400">
           <strong>Ready to activate.</strong> This group has {group.current_members} members.
           Click &quot;Activate Group&quot; to generate the payout schedule and start contributions.
         </div>
       )}
 
       {isUpNext && (
-        <div className="mb-6 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
+        <div className="mb-6 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400">
           <strong>You&apos;re up next!</strong> You&apos;re in line for this round&apos;s payout
           {upNextRow?.amount &&
             ` of ${Number(upNextRow.amount).toLocaleString()} XLM`}
@@ -158,14 +158,14 @@ export default function GroupDetailPage({ params }: Props) {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <section>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">
             Payout Schedule
           </h2>
           <PayoutSchedule group={group} />
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-gray-900 mb-3">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">
             Members
           </h2>
           {membersLoading ? (
@@ -173,13 +173,13 @@ export default function GroupDetailPage({ params }: Props) {
           ) : members && members.length > 0 ? (
             <MemberList members={members} currentPosition={group.current_payout_position} />
           ) : (
-            <p className="text-gray-400 text-sm">No members yet.</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">No members yet.</p>
           )}
         </section>
       </div>
 
       <section className="mt-8">
-        <h2 className="text-base font-semibold text-gray-900 mb-3">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">
           Contributions
         </h2>
         <ContributionTable groupId={id} />
@@ -190,9 +190,9 @@ export default function GroupDetailPage({ params }: Props) {
 
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-lg font-bold text-gray-900">{value}</p>
+    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
+      <p className="text-lg font-bold text-gray-900 dark:text-gray-50">{value}</p>
     </div>
   );
 }
@@ -209,22 +209,22 @@ function MemberList({
       {members.map((m) => (
         <li
           key={m.id}
-          className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-2.5"
+          className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white px-4 py-2.5 dark:border-gray-800 dark:bg-gray-900"
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
             {m.payout_position}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{m.display_name}</p>
-            <p className="text-xs text-gray-400 truncate">{m.email}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">{m.display_name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{m.email}</p>
           </div>
           {m.has_received_payout && (
-            <span className="text-xs font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5">
+            <span className="text-xs font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 dark:text-emerald-400 dark:bg-emerald-500/10">
               Paid
             </span>
           )}
           {m.payout_position === currentPosition && !m.has_received_payout && (
-            <span className="text-xs font-medium text-amber-600 bg-amber-50 rounded-full px-2 py-0.5">
+            <span className="text-xs font-medium text-amber-600 bg-amber-50 rounded-full px-2 py-0.5 dark:text-amber-400 dark:bg-amber-500/10">
               Next
             </span>
           )}

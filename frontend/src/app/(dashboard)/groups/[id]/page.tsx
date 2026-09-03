@@ -15,6 +15,7 @@ import {
   useGroupMembers,
   useJoinGroup,
   useActivateGroup,
+  usePayoutSchedule,
 } from "@/hooks/useGroups";
 import { useAuthStore } from "@/store/authStore";
 import { FREQUENCY_LABELS, ROUTES } from "@/lib/constants";
@@ -29,12 +30,23 @@ export default function GroupDetailPage({ params }: Props) {
   const { user } = useAuthStore();
   const { data: group, isLoading: groupLoading } = useGroup(id);
   const { data: members, isLoading: membersLoading } = useGroupMembers(id);
+  const { data: schedule } = usePayoutSchedule(id);
   const { mutate: joinGroup, isPending: isJoining } = useJoinGroup();
   const { mutate: activateGroup, isPending: isActivating } = useActivateGroup();
 
   const isMember = members?.some((m) => m.user_id === user?.id);
   const isCreator = group?.creator_id === user?.id;
   const canActivate = isCreator && group?.status === "PENDING" && (group?.current_members ?? 0) >= 2;
+
+  const currentUserMember = members?.find((m) => m.user_id === user?.id);
+  const isUpNext =
+    group?.status === "ACTIVE" &&
+    currentUserMember &&
+    currentUserMember.payout_position === group.current_payout_position &&
+    !currentUserMember.has_received_payout;
+  const upNextRow = schedule?.find(
+    (row) => row.payout_round === group?.current_payout_position
+  );
 
   if (groupLoading) {
     return (
@@ -115,6 +127,17 @@ export default function GroupDetailPage({ params }: Props) {
         <div className="mb-6 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
           <strong>Ready to activate.</strong> This group has {group.current_members} members.
           Click &quot;Activate Group&quot; to generate the payout schedule and start contributions.
+        </div>
+      )}
+
+      {isUpNext && (
+        <div className="mb-6 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
+          <strong>You&apos;re up next!</strong> You&apos;re in line for this round&apos;s payout
+          {upNextRow?.amount &&
+            ` of ${Number(upNextRow.amount).toLocaleString()} XLM`}
+          {upNextRow?.scheduled_date &&
+            `, scheduled around ${format(new Date(upNextRow.scheduled_date), "MMM d, yyyy")}`}
+          .
         </div>
       )}
 

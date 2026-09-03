@@ -171,5 +171,6 @@ export interface PayoutScheduleRow {
   payout_round: number;
   scheduled_date: string;
   paid_at: string | null;
+  reminder_sent_at: string | null;
   amount: string | null;
 }

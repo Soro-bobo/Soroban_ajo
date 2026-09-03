@@ -110,6 +110,9 @@ function PayoutRow({
         {isCurrent && (
           <span className="text-xs text-emerald-600 font-medium">Current</span>
         )}
+        {!isPast && row.reminder_sent_at && (
+          <span className="text-xs text-amber-600 font-medium block">Reminder sent</span>
+        )}
       </div>
     </div>
   );

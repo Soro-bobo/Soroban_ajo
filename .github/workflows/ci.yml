@@ -68,7 +68,7 @@ jobs:
           workspaces: backend
 
       - name: Install sqlx-cli
-        run: cargo install sqlx-cli --no-default-features --features postgres,rustls --locked || true
+        run: cargo install sqlx-cli --version 0.7.4 --no-default-features --features postgres,rustls --locked
 
       - name: Run migrations
         working-directory: backend

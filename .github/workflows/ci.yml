@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  frontend:
+    name: Frontend (lint + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.4.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint:frontend
+
+      - run: pnpm build:frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+
+  backend:
+    name: Backend (fmt + clippy + test)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ajo
+          POSTGRES_PASSWORD: ajo
+          POSTGRES_DB: ajo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ajo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://ajo:ajo@localhost:5432/ajo
+      JWT_SECRET: ci-test-secret-do-not-use-in-prod
+      CONTRACT_ID: CDUMMYCONTRACTIDFORCITESTSONLY0000000000000000000000
+      RESEND_API_KEY: ci-test-key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.90.0"
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend
+
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features postgres,rustls --locked || true
+
+      - name: Run migrations
+        working-directory: backend
+        run: sqlx migrate run
+
+      - name: cargo fmt --check
+        working-directory: backend
+        run: cargo fmt -- --check
+
+      - name: cargo clippy
+        working-directory: backend
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo test
+        working-directory: backend
+        run: cargo test
+
+  contracts:
+    name: Contracts (fmt + clippy + test + wasm build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.90.0"
+          components: clippy, rustfmt
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: contracts/ajo
+
+      - name: cargo fmt --check
+        working-directory: contracts/ajo
+        run: cargo fmt -- --check
+
+      - name: cargo clippy
+        working-directory: contracts/ajo
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo test
+        working-directory: contracts/ajo
+        run: cargo test
+
+      - name: Build wasm (release)
+        working-directory: contracts/ajo
+        run: cargo build --release --target wasm32-unknown-unknown
